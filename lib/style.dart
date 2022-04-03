@@ -11,6 +11,9 @@ var theme = ThemeData(
   //   )
   // ),
   // elevatedButtonTheme: ElevatedButtonThemeData(),
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    selectedItemColor: Colors.black
+  ),
   appBarTheme: AppBarTheme(
     color: Colors.white,
     elevation: 1,
