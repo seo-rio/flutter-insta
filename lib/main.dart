@@ -13,8 +13,16 @@ void main() {
 
 var a = TextStyle();
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  // step1. 현재 탭의 상태 선언
+  var tab = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -28,15 +36,23 @@ class MyApp extends StatelessWidget {
             iconSize: 30,
           ),
         ]),
-      // ThemeData 찾아서 textTheme.bodyText2의 Style을 적용해줌
-      body: Text('안녕', style: Theme.of(context).textTheme.bodyText2),
-      // Container 자식부터는 새로운 style을 적용하고 싶을때
-      // body: Theme(
-      //   data: ThemeData(
-      //     textTheme: TextTheme()
-      //   ),
-      //   child: Container(),
-      // ),
+      // step2. tab 변수에 따라 보여줄 List 구현
+      body: [Text('홈페이지'), Text('샵페이지')][tab],
+      bottomNavigationBar: BottomNavigationBar(
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        onTap: (i) {
+          // step3. tab 상태 변경 구현
+          setState(() {
+            tab = i;
+          });
+        },
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: '홈'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined), label: '샵'),
+        ],
+      ),
+
     );
   }
 }
