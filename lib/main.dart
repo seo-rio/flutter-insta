@@ -9,6 +9,11 @@ void main() {
       MaterialApp(
         // Web에 전역 CSS 같은거 (다른 파일로 뺄 수 있음)
         theme: theme,
+        // initialRoute: '/',
+        // routes: {
+        //   '/': (c) => Text('첫 페이지'),
+        //   '/detail': (c) => Text('두번째 페이지')
+        // },
         home: MyApp()
       )
   );
@@ -60,7 +65,14 @@ class _MyAppState extends State<MyApp> {
         actions: [
           IconButton(
             icon: Icon(Icons.add_box_outlined),
-            onPressed: (){},
+            onPressed: (){
+              // Navigator.push(context,
+              //   MaterialPageRoute(builder: (c){return Text('새 페이지');})
+              // );
+              Navigator.push(context,
+                MaterialPageRoute(builder: (c) => Upload())
+              );
+            },
             iconSize: 30,
           ),
         ]),
@@ -138,3 +150,26 @@ class _HomeState extends State<Home> {
   }
 }
 
+class Upload extends StatelessWidget {
+  const Upload({Key? key}) : super(key: key);
+  @override
+
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('이미지업로드화면'),
+            IconButton(
+              onPressed: (){
+                // Material App Context가 포함되어 있어야함
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.close)
+            ),
+          ],
+        )
+    );
+  }
+}
