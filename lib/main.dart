@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import './style.dart';
 import 'package:http/http.dart' as http;
@@ -193,6 +194,18 @@ class _HomeState extends State<Home> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             widget.data[i]['image'].runtimeType == String ? Image.network(widget.data[i]['image']) : Image.file(widget.data[i]['image']),
+            // Text에는 tap 같은 기능이 없으므로 특정 동작을 감지하기 위한 위젯
+            GestureDetector(
+              child: Text(widget.data[i]['user']),
+              onTap: (){
+                // Page 전환 커스텀 할려면 PageRouteBuilder, transitionsBuilder 사용
+                Navigator.push(context, PageRouteBuilder(
+                  pageBuilder: (c, a1, a2) => Profile(),
+                  transitionsBuilder: (c, a1, a2, child) => FadeTransition(opacity: a1, child: child),
+                  // 애니메이션 동작 속도 조절
+                  transitionDuration: Duration(milliseconds: 500)
+                ));
+              }),
             Text('좋아요 ${widget.data[i]['likes']}'),
             Text(widget.data[i]['date']),
             Text(widget.data[i]['content']),
@@ -242,6 +255,18 @@ class Upload extends StatelessWidget {
           ),
         ],
       )
+    );
+  }
+}
+
+class Profile extends StatelessWidget {
+  const Profile({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Text('프로필 페이지'),
     );
   }
 }
