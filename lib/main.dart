@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(
@@ -36,6 +37,27 @@ class _MyAppState extends State<MyApp> {
   var data = [];
   var userImage;
   var userContent;
+
+  saveData() async {
+    var storage = await SharedPreferences.getInstance();
+
+    // 데이터 저장
+    storage.setString('name', 'john');
+    // 데이터 삭제
+    storage.remove('name');
+    // 데이터 꺼내기
+    var result = storage.getString('name');
+
+    print(result);
+
+    var map = {'age': 20};
+    // Map 자료형 저장
+    storage.setString('map', jsonEncode(map));
+    // Map 자료 꺼내기
+    var result2 = storage.getString('map') ?? '데이터 없음';
+    print(jsonDecode(result2)['age']);
+
+  }
 
   // 게시글 작성시 데이터 추가하는 함수
   addMyData() {
@@ -80,6 +102,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    saveData();
     getData();
   }
 
