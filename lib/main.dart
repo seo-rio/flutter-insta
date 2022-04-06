@@ -3,6 +3,8 @@ import './style.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/rendering.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 void main() {
   runApp(
@@ -32,6 +34,31 @@ class _MyAppState extends State<MyApp> {
   // step1. 현재 탭의 상태 선언
   var tab = 0;
   var data = [];
+  var userImage;
+  var userContent;
+
+  // 게시글 작성시 데이터 추가하는 함수
+  addMyData() {
+    var myData = {
+      'id': data.length,
+      'image': userImage,
+      'likes': '5',
+      'date': 'July 25',
+      'content': userContent,
+      'liked': false,
+      'user': 'John Kim'
+    };
+
+    setState(() {
+      data.insert(0, myData);
+    });
+  }
+
+  setUserContent(text) {
+    setState(() {
+      userContent = text;
+    });
+  }
 
   getData() async {
     // Dio package 사용하면 훨씬 유용함
@@ -65,12 +92,20 @@ class _MyAppState extends State<MyApp> {
         actions: [
           IconButton(
             icon: Icon(Icons.add_box_outlined),
-            onPressed: (){
+            onPressed: () async {
+              var picker = ImagePicker();
+              var image = await picker.pickImage(source: ImageSource.gallery);
+              if(image != null) {
+                setState(() {
+                  userImage = File(image.path);
+                });
+              }
+
               // Navigator.push(context,
               //   MaterialPageRoute(builder: (c){return Text('새 페이지');})
               // );
               Navigator.push(context,
-                MaterialPageRoute(builder: (c) => Upload())
+                MaterialPageRoute(builder: (c) => Upload(userImage: userImage, setUserContent: setUserContent, addMyData: addMyData))
               );
             },
             iconSize: 30,
@@ -116,7 +151,6 @@ class _HomeState extends State<Home> {
     super.initState();
     // scroll될때마다 실행하는 함수
     scroll.addListener(() {
-      print(scroll.position.pixels);
       // 스크롤이 마지막이 됐을 경우
       if(scroll.position.pixels == scroll.position.maxScrollExtent) {
         widget.moreData();
@@ -126,8 +160,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // StatefulWidget안에있는 변수를 사용하려면 widget.변수명
-    print(widget.data);
     if(widget.data.isNotEmpty) {
       return ListView.builder(
         itemCount: widget.data.length,
@@ -137,7 +169,7 @@ class _HomeState extends State<Home> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(widget.data[i]['image']),
+            widget.data[i]['image'].runtimeType == String ? Image.network(widget.data[i]['image']) : Image.file(widget.data[i]['image']),
             Text('좋아요 ${widget.data[i]['likes']}'),
             Text(widget.data[i]['date']),
             Text(widget.data[i]['content']),
@@ -151,25 +183,42 @@ class _HomeState extends State<Home> {
 }
 
 class Upload extends StatelessWidget {
-  const Upload({Key? key}) : super(key: key);
+  const Upload({Key? key, this.userImage, this.setUserContent, this.addMyData}) : super(key: key);
+
+  final userImage;
+  final setUserContent;
+  final addMyData;
+
   @override
 
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('이미지업로드화면'),
-            IconButton(
-              onPressed: (){
-                // Material App Context가 포함되어 있어야함
-                Navigator.pop(context);
-              },
-              icon: Icon(Icons.close)
-            ),
-          ],
-        )
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        actions: [
+          IconButton(onPressed: (){
+            addMyData();
+          }, icon: Icon(Icons.send)),
+        ],
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Image.file(userImage),
+          TextField(onChanged: (text){
+            // 유저가 TextField에 입력한 글을 전달
+            setUserContent(text);
+          }),
+          Text('이미지업로드화면'),
+          IconButton(
+            onPressed: (){
+              // Material App Context가 포함되어 있어야함
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.close)
+          ),
+        ],
+      )
     );
   }
 }
