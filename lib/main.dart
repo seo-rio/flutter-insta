@@ -7,18 +7,26 @@ import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(
-      MaterialApp(
-        // Web에 전역 CSS 같은거 (다른 파일로 뺄 수 있음)
-        theme: theme,
-        // initialRoute: '/',
-        // routes: {
-        //   '/': (c) => Text('첫 페이지'),
-        //   '/detail': (c) => Text('두번째 페이지')
-        // },
-        home: MyApp()
+      // Store 여러개 사용하려면 MultiProvider
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (c) => Store1()),
+          ChangeNotifierProvider(create: (c) => Store2())
+        ],
+        child: MaterialApp(
+          // Web에 전역 CSS 같은거 (다른 파일로 뺄 수 있음)
+          theme: theme,
+          // initialRoute: '/',
+          // routes: {
+          //   '/': (c) => Text('첫 페이지'),
+          //   '/detail': (c) => Text('두번째 페이지')
+          // },
+          home: MyApp()
+        ),
       )
   );
 }
@@ -259,14 +267,91 @@ class Upload extends StatelessWidget {
   }
 }
 
+class Store1 extends ChangeNotifier {
+  var follower = 0;
+  var friend = false;
+
+  var profileImage = [];
+
+  getProfileData() async {
+    var result = await http.get(Uri.parse('https://codingapple1.github.io/app/profile.json'));
+    var result2 = jsonDecode(result.body);
+    profileImage = result2;
+    notifyListeners();
+  }
+
+  addFollower() {
+    !friend ? follower++ : follower--;
+    friend = !friend ? true : false;
+    notifyListeners();
+  }
+}
+
+class Store2 extends ChangeNotifier {
+  var name = 'john Kim';
+  changeName() {
+    name = 'john park';
+    notifyListeners();
+  }
+}
+
 class Profile extends StatelessWidget {
   const Profile({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Text('프로필 페이지'),
+      appBar: AppBar(title: Text(context.watch<Store2>().name) ),
+      body: CustomScrollView(
+        // slivers 안에는 평소에 쓰던 위젯 아무렇게나 못넣음 SliverXXX 로 시작하는 걸로 넣어야함
+        slivers: [
+          // Container랑 똑같음
+          SliverToBoxAdapter(
+            child: ProfileHeader(),
+          ),
+          SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+              (c, i) => Image.network(context.watch<Store1>().profileImage[i]),
+              childCount: context.watch<Store1>().profileImage.length
+            ),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2))
+        ],
+      )
     );
   }
 }
+
+// GridView 사용법
+// GridView.builder(
+//   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+//   itemBuilder: (BuildContext context, int index) { return Container(color: Colors.grey,); },
+//   itemCount: 3,
+// )
+
+class ProfileHeader extends StatelessWidget {
+  const ProfileHeader({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        CircleAvatar(
+          radius: 30,
+          backgroundColor: Colors.grey,
+        ),
+        Text('팔로워 ${context.watch<Store1>().follower}명'),
+        ElevatedButton(onPressed: (){
+          context.read<Store1>().addFollower();
+        }, child: Text('팔로우')),
+        ElevatedButton(onPressed: (){
+          context.read<Store1>().getProfileData();
+        }, child: Text('사진 가져오기')),
+      ],
+    );
+  }
+}
+
+// Pages 폴더
+// Widget 폴더
+// Store 폴더
