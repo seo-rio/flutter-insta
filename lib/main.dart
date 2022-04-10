@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_insta/notification.dart';
+import 'package:flutter_insta/shop.dart';
 import './style.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -9,8 +10,17 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+
   runApp(
       // Store 여러개 사용하려면 MultiProvider
       MultiProvider(
@@ -151,7 +161,7 @@ class _MyAppState extends State<MyApp> {
           ),
         ]),
       // step2. tab 변수에 따라 보여줄 List 구현
-      body: [Home(data: data, moreData: moreData), Text('샵페이지')][tab],
+      body: [Home(data: data, moreData: moreData), Shop()][tab],
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
         showUnselectedLabels: false,
