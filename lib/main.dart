@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_insta/notification.dart';
 import './style.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -38,6 +39,7 @@ class MyApp extends StatefulWidget {
 
   @override
   State<MyApp> createState() => _MyAppState();
+
 }
 
 class _MyAppState extends State<MyApp> {
@@ -113,12 +115,17 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     saveData();
     getData();
+    initNotification(context);
   }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(child: Text('+'), onPressed: (){
+        // showNotification();
+        showNotification2();
+      },),
       appBar: AppBar(
         title: Text('Instagram'),
         actions: [
